@@ -26,5 +26,5 @@ export function done(): {
   isErrored: false;
   content: void;
 } {
-  return {isErrored: false, content: null}
+  return {isErrored: false, content: undefined}
 }

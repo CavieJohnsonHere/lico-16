@@ -1,0 +1,15 @@
+{
+  "name": "lico-16",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "lua-in-js": "^2.2.5"
+  }
+}

@@ -1,4 +1,4 @@
-import { Pixel } from "./Pixel";
+import { type Pixel } from "./pixel";
 import ctx from "./canvas";
 import { SCALE } from "./setupCanvas";
 

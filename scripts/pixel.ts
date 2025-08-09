@@ -1,5 +1,5 @@
 import { HEIGHT, WIDTH } from "./setupCanvas";
-import { Color, Coordinates, validateColor } from "./writeSprite";
+import { type Color, type Coordinates, validateColor } from "./writeSprite";
 
 export type Pixel = Coordinates & Color;
 

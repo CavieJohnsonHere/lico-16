@@ -1,4 +1,4 @@
-import { Color } from "./writeSprite";
+import writeSprite, { type Color, type Coordinates } from "./writeSprite";
 
 const memory = [
   {
@@ -402,6 +402,8 @@ type LoadedObject = {
 export function load(index: number): LoadedObject {
   const loadedObject = memory[index];
 
+  if (!loadedObject) throw new Error("Loaded object out of range")
+
   if ((loadedObject.type as LoadedType) == loadedObject.type) {
     return loadedObject as LoadedObject;
   }
@@ -410,4 +412,11 @@ export function load(index: number): LoadedObject {
   throw new Error(`Invalid type: ${loadedObject.type}`);
 }
 
-export function 
+export function writeLoadedSprite(
+  loadedObject: LoadedObject,
+  pos: {strValues: Coordinates}
+) {
+  if (loadedObject.type != "image") throw new Error(`Invalid type`);
+
+  writeSprite(loadedObject.content, pos.strValues);
+}
