@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pixel Image Creator</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #controls { margin-bottom: 20px; }
+    #grid { display: grid; gap: 1px; background: #ccc; }
+    .pixel {
+      width: 20px; height: 20px;
+      background: #fff;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+    #colorPicker { margin-left: 10px; }
+  </style>
+  <script src="https://jscolor.com/releases/2.4.6/jscolor.js"></script>
+</head>
+<body>
+  <div id="controls">
+    Size: <input type="number" id="sizeInput" min="1" max="64" value="8">
+    <button id="createBtn">Create Grid</button>
+    R: <input type="number" id="r" min="0" max="255" value="0" style="width:50px;">
+    G: <input type="number" id="g" min="0" max="255" value="0" style="width:50px;">
+    B: <input type="number" id="b" min="0" max="255" value="0" style="width:50px;">
+    <input id="colorPicker" class="jscolor" value="000000" style="margin-left:10px; width:60px;">
+    Alpha: <input type="checkbox" id="alpha" style="margin-left:10px;"> Transparent
+    <button id="exportBtn" style="margin-left:20px;">Export as JSON</button>
+  </div>
+  <div id="grid"></div>
+  <script>
+    const grid = document.getElementById('grid');
+    const sizeInput = document.getElementById('sizeInput');
+    const createBtn = document.getElementById('createBtn');
+    const rInput = document.getElementById('r');
+    const gInput = document.getElementById('g');
+    const bInput = document.getElementById('b');
+    const alphaInput = document.getElementById('alpha');
+    const exportBtn = document.getElementById('exportBtn');
+    const colorPicker = document.getElementById('colorPicker');
+
+    let currentSize = parseInt(sizeInput.value);
+
+    // Sync color picker <-> RGB fields
+    function rgbToHex(r, g, b) {
+      return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+    function hexToRgb(hex) {
+      hex = hex.replace(/^#/, '');
+      if (hex.length === 3) {
+        hex = hex.split('').map(x => x + x).join('');
+      }
+      const num = parseInt(hex, 16);
+      return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255
+      };
+    }
+
+    function updateRGBFromPicker() {
+      const rgb = hexToRgb(colorPicker.value);
+      rInput.value = rgb.r;
+      gInput.value = rgb.g;
+      bInput.value = rgb.b;
+    }
+    function updatePickerFromRGB() {
+      const r = parseInt(rInput.value) || 0;
+      const g = parseInt(gInput.value) || 0;
+      const b = parseInt(bInput.value) || 0;
+      colorPicker.jscolor.fromString(rgbToHex(r, g, b));
+    }
+
+    colorPicker.addEventListener('change', updateRGBFromPicker);
+    rInput.addEventListener('input', updatePickerFromRGB);
+    gInput.addEventListener('input', updatePickerFromRGB);
+    bInput.addEventListener('input', updatePickerFromRGB);
+
+    function createGrid(size) {
+      currentSize = size;
+      grid.innerHTML = '';
+      grid.style.gridTemplateColumns = `repeat(${size}, 20px)`;
+      grid.style.gridTemplateRows = `repeat(${size}, 20px)`;
+      for (let i = 0; i < size * size; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'pixel';
+        btn.dataset.index = i;
+        btn.style.background = '#fff';
+        btn.addEventListener('click', () => {
+          const r = parseInt(rInput.value) || 0;
+          const g = parseInt(gInput.value) || 0;
+          const b = parseInt(bInput.value) || 0;
+          const isAlpha = alphaInput.checked;
+          if (isAlpha) {
+            btn.style.background = 'transparent';
+            btn.dataset.color = 'transparent';
+          } else {
+            btn.style.background = `rgb(${r},${g},${b})`;
+            btn.dataset.color = `rgb(${r},${g},${b})`;
+          }
+        });
+        btn.dataset.color = '#fff';
+        grid.appendChild(btn);
+      }
+    }
+
+    createBtn.addEventListener('click', () => {
+      const size = Math.max(1, Math.min(64, parseInt(sizeInput.value) || 8));
+      createGrid(size);
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const pixelButtons = grid.querySelectorAll('.pixel');
+      const pixels = [];
+      for (let i = 0; i < pixelButtons.length; i++) {
+        let color = pixelButtons[i].dataset.color;
+        if (color === 'transparent') {
+          pixels.push({ r: 0, g: 0, b: 0, a: true });
+        } else {
+          // color is in "rgb(r,g,b)" or "#fff"
+          let r = 255, g = 255, b = 255;
+          if (color.startsWith('rgb')) {
+            const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+            if (match) {
+              r = parseInt(match[1]);
+              g = parseInt(match[2]);
+              b = parseInt(match[3]);
+            }
+          } else if (color.startsWith('#')) {
+            const rgb = hexToRgb(color);
+            r = rgb.r;
+            g = rgb.g;
+            b = rgb.b;
+          }
+          pixels.push({ r, g, b, a: false });
+        }
+      }
+      const json = JSON.stringify(pixels, null, 2);
+      const blob = new Blob([json], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pixel_image.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // Initialize with default size and sync picker
+    createGrid(parseInt(sizeInput.value));
+    updatePickerFromRGB();
+  </script>
+</body>
+</html>
