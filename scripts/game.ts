@@ -1,9 +1,11 @@
+import resetCanvas from "./resetCanvas";
+
 type Game = {
   start: () => void;
   update: () => void;
 };
 
-const game: Game = {
+export const game: Game = {
   start: () => null,
   update: () => null,
 };
@@ -18,11 +20,11 @@ export function setUpdate(update: () => void) {
 
 export function startGame() {
   game.start();
+
   const a = () => {
     game.update();
     requestAnimationFrame(a);
   };
+
   a();
 }
-
-export const code = "setStart(() => console.log('Hello'));";

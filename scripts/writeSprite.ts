@@ -40,7 +40,7 @@ export default function writeSprite(sprite: Color[], coords: Coordinates) {
 
   for (let y = 0; y < SPRITE_SIZE; y++) {
     for (let x = 0; x < SPRITE_SIZE; x++) {
-      writePixel({ ...rows[y][x], ...{ x: coords.x + x, y: coords.y + y } });
+      writePixel({ ...rows[y][x], ...{ x: Math.floor(coords.x) + x, y: Math.floor(coords.y) + y } });
     }
   }
 

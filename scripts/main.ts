@@ -1,14 +1,18 @@
 import { setCanvas } from "./canvas";
-import { code, setStart, setUpdate, startGame } from "./game";
+import { setStart, setUpdate, startGame } from "./game";
 import handleClick from "./handleClick";
-import handleInput from "./handleInput";
+import { handleKeyDown, handleKeyUp, keysPressed } from "./handleInput";
 import { load, writeLoadedSprite } from "./memory";
 import * as luainjs from "lua-in-js";
 import { setupCanvas } from "./setupCanvas";
 import writeSprite, { type Color } from "./writeSprite";
+import resetCanvas from "./resetCanvas";
 
-function main() {
+async function main() {
   const canvasElement = document.getElementById("canvas");
+
+  const luaScriptFetch = await fetch("/lua");
+  const luaScriptRes = await luaScriptFetch.text();
 
   if (!canvasElement) {
     console.error("Canvas was not found.");
@@ -20,16 +24,24 @@ function main() {
   setupCanvas();
 
   document.addEventListener("click", () => {
+    // Remove the overlay after the first click
+    const overlay = document.getElementById("overlay");
+    if (overlay) {
+      overlay.remove();
+    }
+
     document.removeEventListener(
       "click",
       handleClick as EventListenerOrEventListenerObject
     );
-    document.removeEventListener("keydown", handleInput);
+    document.removeEventListener("keydown", handleKeyDown);
+    document.removeEventListener("keyup", handleKeyUp);
 
     const sprite: Color[] = [];
 
     writeSprite(sprite, { x: 50, y: 50 });
-    document.addEventListener("keydown", handleInput);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyUp);
     document.addEventListener(
       "click",
       handleClick as EventListenerOrEventListenerObject
@@ -41,19 +53,27 @@ function main() {
       setUpdate,
       load,
       writeLoadedSprite,
-      startGame
+      startGame,
+      resetCanvas,
+      input: () =>
+        new luainjs.Table({
+          x: keysPressed.get("ArrowRight")
+            ? 1
+            : keysPressed.get("ArrowLeft")
+            ? -1
+            : 0,
+          y: keysPressed.get("ArrowDown")
+            ? 1
+            : keysPressed.get("ArrowUp")
+            ? -1
+            : 0,
+          keyX: keysPressed.get("x") || false,
+          keyC: keysPressed.get("c") || false,
+        }),
     });
     env.loadLib("lico", lib);
 
-    console.log(env.parse(`
-      function start()
-        print('hello')
-        lico.writeLoadedSprite(lico.load(0), {x = 5, y = 5})
-      end
-
-      lico.setStart(start)
-      lico.startGame()
-      `).exec());
+    env.parse(luaScriptRes).exec();
   });
 }
 
