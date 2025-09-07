@@ -23,11 +23,16 @@ enemy = {
     speedY = 0
 }
 
+music = lico.load(3)
 speed = 0.5
 gravity = 0.1
 counter = 0
 
 running = true
+
+function start()
+    lico.playLoadedSound(music, 0)
+end
 
 function update()
     lico.resetCanvas()
@@ -79,11 +84,12 @@ function update()
     if player.pos.x < enemy.pos.x + 4 and player.pos.x > enemy.pos.x - 4 and player.pos.y < enemy.pos.y + 4 and
         player.pos.y > enemy.pos.y - 4 and running then
         print("OH FUCK")
+        lico.stopSound(0)
         running = false
     end
 
 end
 
--- lico.setStart(start)
+lico.setStart(start)
 lico.setUpdate(update)
 lico.startGame()

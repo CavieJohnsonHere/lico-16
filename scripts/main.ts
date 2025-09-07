@@ -7,6 +7,7 @@ import * as luainjs from "lua-in-js";
 import { setupCanvas } from "./setupCanvas";
 import writeSprite, { type Color } from "./writeSprite";
 import resetCanvas from "./resetCanvas";
+import { playLoadedSound, stopSound } from "./playSound";
 
 async function main() {
   const canvasElement = document.getElementById("canvas");
@@ -55,6 +56,8 @@ async function main() {
       writeLoadedSprite,
       startGame,
       resetCanvas,
+      playLoadedSound,
+      stopSound,
       input: () =>
         new luainjs.Table({
           x: keysPressed.get("ArrowRight")

@@ -1,6 +1,6 @@
 type Sound = {
   type: "A" | "B" | "C" | "D";
-  
+
   // C5 is 0
   note: number;
 
@@ -11,9 +11,15 @@ type Sound = {
   length: number;
 };
 
+type LoadedSound = {
+  type: "sound";
+  content: Sound[];
+};
+
 export default function playSound(sound: Sound) {
   // Create audio context if not already present
-  const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+  const AudioContext =
+    window.AudioContext || (window as any).webkitAudioContext;
   if (!AudioContext) return;
   const ctx = (playSound as any)._ctx || new AudioContext();
   (playSound as any)._ctx = ctx;
@@ -48,7 +54,7 @@ export default function playSound(sound: Sound) {
 
   // Gain node for volume
   const gain = ctx.createGain();
-  gain.gain.value = Math.max(0, Math.min(1, sound.volume));
+  gain.gain.value = Math.max(0, Math.min(1, sound.volume * 0.05));
 
   osc.connect(gain).connect(ctx.destination);
   osc.start();
@@ -58,4 +64,31 @@ export default function playSound(sound: Sound) {
     osc.disconnect();
     gain.disconnect();
   };
+}
+
+const sounds: NodeJS.Timeout[][] = []
+
+export async function playLoadedSound(loadedSound: LoadedSound, id: number) {
+  // Play each sound one after the other (sequentially).
+  for (const sound of loadedSound.content) {
+    // Reset sounds from the id
+    sounds[id] = [];
+
+    // Start the sound
+    playSound(sound);
+
+    // Wait for its duration before playing the next one
+    await new Promise((resolve) => {
+      const soundTimeout = setTimeout(resolve, sound.length)
+      sounds[id]?.push(soundTimeout);
+    });
+  }
+}
+
+export function stopSound(id: number) {
+  const soundsToRemove = sounds[id]
+  if (soundsToRemove) {
+    console.log(soundsToRemove)
+    soundsToRemove.forEach(soundToRemove => typeof soundToRemove.close == "function" ? soundToRemove.close() : "")
+  }
 }
