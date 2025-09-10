@@ -1,6 +1,7 @@
+import type { Sound } from "./playSound";
 import writeSprite, { type Color, type Coordinates } from "./writeSprite";
 
-const memory = [
+const memory: LoadedObject[] = [
   {
     type: "image",
     content: [
@@ -1207,6 +1208,23 @@ const memory = [
   },
 ];
 
+function getSizeOfLoadedObject(mem: LoadedObject[]): number {
+  let size = 0;
+  for (let i = 0; i < mem.length; i++) {
+    const item = mem[i];
+    // TODO: use our Error system instead
+    if (!item) throw new Error("UNREACHABLE REACHED, THE WORLD WILL END");
+
+    if (item.type == "image") {
+      if ((item.content.length % 8) % 1 != 0)
+        size += item.content.length * 4 + 8;
+      else size += item.content.length * 4 + 4;
+    }
+  }
+
+  return size;
+}
+
 type LoadedType = "image";
 
 type LoadedAsset = {
@@ -1214,7 +1232,17 @@ type LoadedAsset = {
   content: Color[];
 };
 
-type LoadedObject = LoadedAsset;
+type LoadedCode = {
+  type: "image";
+  content: Color[];
+};
+
+export type LoadedSound = {
+  type: "sound";
+  content: Sound[];
+};
+
+type LoadedObject = LoadedAsset | LoadedCode | LoadedSound;
 
 export function load(index: number): LoadedObject {
   const loadedObject = memory[index];

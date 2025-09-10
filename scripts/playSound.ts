@@ -1,4 +1,6 @@
-type Sound = {
+import type { LoadedSound } from "./memory";
+
+export type Sound = {
   type: "A" | "B" | "C" | "D";
 
   // C5 is 0
@@ -9,11 +11,6 @@ type Sound = {
 
   // in ms
   length: number;
-};
-
-type LoadedSound = {
-  type: "sound";
-  content: Sound[];
 };
 
 export default function playSound(sound: Sound) {
