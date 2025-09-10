@@ -1216,9 +1216,25 @@ function getSizeOfLoadedObject(mem: LoadedObject[]): number {
     if (!item) throw new Error("UNREACHABLE REACHED, THE WORLD WILL END");
 
     if (item.type == "image") {
+      // We assume 4 bits per pixel, later it will be index-based so we can have 14 colors in each pallette (one is always transparent)
+      // We also assume 8 bits for metadata including 4 for the data type ("image") leaving 4 for the pallette, allowing us to get 15 pallettes.
+      if ((item.content.length % 8) % 1 != 0)
+        size += item.content.length * 4 + 8;
+      else size += item.content.length * 4 + 12;
+    }
+
+    if (item.type == "sound") {
+      // We assume 16 bits per sound note (2 for type, 5 for note, 3 for volume, and 6 fpr length), and 8 bits for metadata including 4 for the data type ("sound") leaving 4 for future use.
       if ((item.content.length % 8) % 1 != 0)
         size += item.content.length * 4 + 8;
       else size += item.content.length * 4 + 4;
+    }
+
+    if (item.type == "code") {
+      // We assume 8 bits per character, and 8 bits for metadata including 4 for the data type ("code") leaving 4 for future use.
+      if ((item.content.length % 8) % 1 != 0)
+        size += item.content.length * 1 + 8;
+      else size += item.content.length * 1 + 4;
     }
   }
 
@@ -1233,8 +1249,8 @@ type LoadedAsset = {
 };
 
 type LoadedCode = {
-  type: "image";
-  content: Color[];
+  type: "code";
+  content: string;
 };
 
 export type LoadedSound = {
