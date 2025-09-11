@@ -44,9 +44,11 @@ function getLoadedObjectRefrence(
   size: number
 ): LoadedObjectRefrence {
   refrences[index] = loadedObject;
-  const getter = () => refrences[index];
+  const thing = {} as any;
 
-  getter.unload = () => {
+  thing.get = () => refrences[index];
+
+  thing.unload = () => {
     refrences[index] = undefined;
 
     memoryUsage -= size;
@@ -58,12 +60,12 @@ function getLoadedObjectRefrence(
     );
   };
 
-  return getter;
+  return thing;
 }
 
 export function load(index: number): LoadedObjectRefrence {
   const loadedObject = storage[index];
-  if (!loadedObject) throw new Error("Loaded object out of range");
+  if (!loadedObject) throw new Error(`Loaded object out of range, loaded: ${index}`);
 
   const loadedObjectMemoryUsage = getSizeOfLoadedObject([loadedObject]);
   if (loadedObjectMemoryUsage.isErrored)

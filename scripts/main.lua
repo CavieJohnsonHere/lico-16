@@ -31,7 +31,7 @@ counter = 0
 running = true
 
 function start()
-    lico.playLoadedSound(music, 0)
+    lico.playLoadedSound(music.get(), 0)
 end
 
 function update()
@@ -48,12 +48,12 @@ function update()
         enemy.pos.y = enemy.pos.y + enemy.speedY
     end
 
-    lico.writeLoadedSprite(player.sprites[player.spriteIndex], {
+    lico.writeLoadedSprite(player.sprites[player.spriteIndex].get(), {
         x = player.pos.x,
         y = player.pos.y
     })
 
-    lico.writeLoadedSprite(enemy.sprites[enemy.spriteIndex], {
+    lico.writeLoadedSprite(enemy.sprites[enemy.spriteIndex].get(), {
         x = enemy.pos.x,
         y = enemy.pos.y
     })
@@ -85,6 +85,7 @@ function update()
         player.pos.y > enemy.pos.y - 4 and running then
         print("OH FUCK")
         lico.stopSound(0)
+        music.unload()
         running = false
     end
 
