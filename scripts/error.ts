@@ -1,4 +1,4 @@
-type Error<T> =
+export type Error<T> =
   | {
       isErrored: false;
       content: T;
