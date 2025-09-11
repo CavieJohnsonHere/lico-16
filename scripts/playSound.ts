@@ -85,7 +85,6 @@ export async function playLoadedSound(loadedSound: LoadedSound, id: number) {
 export function stopSound(id: number) {
   const soundsToRemove = sounds[id]
   if (soundsToRemove) {
-    console.log(soundsToRemove)
     soundsToRemove.forEach(soundToRemove => typeof soundToRemove.close == "function" ? soundToRemove.close() : "")
   }
 }

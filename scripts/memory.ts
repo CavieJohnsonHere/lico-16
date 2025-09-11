@@ -1,6 +1,9 @@
-import { memory } from "./cartridge";
+import { getSizeOfLoadedObject, memory } from "./cartridge";
+import { MEMORY_SIZE } from "./constants";
 import type { Sound } from "./playSound";
 import writeSprite, { type Color, type Coordinates } from "./writeSprite";
+
+let ramUsage = 0;
 
 type LoadedAsset = {
   type: "image";
@@ -31,8 +34,20 @@ export function writeLoadedSprite(
 
 export function load(index: number): LoadedObject {
   const loadedObject = memory[index];
-
   if (!loadedObject) throw new Error("Loaded object out of range");
+
+  const loadedObjectRAMUsage = getSizeOfLoadedObject([loadedObject]);
+  if (loadedObjectRAMUsage.isErrored)
+    throw new Error(loadedObjectRAMUsage.error);
+
+  ramUsage += loadedObjectRAMUsage.content;
+  if (ramUsage > MEMORY_SIZE) throw new Error("Out of fictional memory");
+
+  console.log(
+    `Fictional memory usage: ${((ramUsage / MEMORY_SIZE) * 100).toFixed(
+      2
+    )}% ==== ${ramUsage}`
+  );
 
   if ((loadedObject.type as LoadedType) == loadedObject.type) {
     return loadedObject as LoadedObject;

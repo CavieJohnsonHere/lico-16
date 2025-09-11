@@ -3,7 +3,7 @@ import type { LoadedObject } from "./memory";
 
 export let memory = [] as LoadedObject[];
 
-function getSizeOfLoadedObject(mem: LoadedObject[]): Error<number> {
+export function getSizeOfLoadedObject(mem: LoadedObject[]): Error<number> {
   let size = 0;
   for (let i = 0; i < mem.length; i++) {
     const item = mem[i];
