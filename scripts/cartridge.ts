@@ -1,7 +1,8 @@
+import { STORAGE_SIZE } from "./constants";
 import { done, fine, panic, type Error } from "./error";
 import type { LoadedObject } from "./memory";
 
-export let memory = [] as LoadedObject[];
+export let storage = [] as LoadedObject[];
 
 export function getSizeOfLoadedObject(mem: LoadedObject[]): Error<number> {
   let size = 0;
@@ -36,18 +37,18 @@ export function getSizeOfLoadedObject(mem: LoadedObject[]): Error<number> {
   return fine(size);
 }
 
-export function loadCartridge(storage: LoadedObject[]): Error<void> {
-  const size = getSizeOfLoadedObject(storage);
+export function loadCartridge(cartridge: LoadedObject[]): Error<void> {
+  const size = getSizeOfLoadedObject(cartridge);
 
   if (size.isErrored) return panic(size.error);
 
-  console.log(`Loaded cartridge with ${storage.length} items, using ${size} bits of memory.`);
+  console.log(`Loaded cartridge with ${cartridge.length} items, using ${size} bits of memory.`);
 
-  if (size.content > 4096) {
+  if (size.content > STORAGE_SIZE) {
     return panic("Cartridge too large to fit in fictional memory.");
   }
 
-  memory = storage
+  storage = cartridge
 
   return done();
 }
