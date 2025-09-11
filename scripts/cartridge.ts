@@ -36,7 +36,7 @@ function getSizeOfLoadedObject(mem: LoadedObject[]): Error<number> {
   return fine(size);
 }
 
-function loadCartridge(storage: LoadedObject[]): Error<void> {
+export function loadCartridge(storage: LoadedObject[]): Error<void> {
   const size = getSizeOfLoadedObject(storage);
 
   if (size.isErrored) return panic(size.error);

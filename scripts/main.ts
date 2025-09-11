@@ -8,6 +8,7 @@ import { setupCanvas } from "./setupCanvas";
 import writeSprite, { type Color } from "./writeSprite";
 import resetCanvas from "./resetCanvas";
 import { playLoadedSound, stopSound } from "./playSound";
+import { loadCartridge } from "./cartridge";
 
 async function main() {
   const canvasElement = document.getElementById("canvas");
@@ -24,7 +25,7 @@ async function main() {
   setCanvas(canvasElement as HTMLCanvasElement);
   setupCanvas();
 
-  document.addEventListener("click", () => {
+  document.addEventListener("click", async () => {
     // Remove the overlay after the first click
     const overlay = document.getElementById("overlay");
     if (overlay) {
@@ -47,6 +48,15 @@ async function main() {
       "click",
       handleClick as EventListenerOrEventListenerObject
     );
+
+    const error = loadCartridge(
+      (await document.querySelector("input")?.files?.item(0)?.json()) || []
+    );
+
+    if (error.isErrored) {
+      console.error("Error loading cartridge:", error.error);
+      document.body.innerHTML = `<h1>Error loading cartridge: ${error.error}</h1>`;
+    }
 
     const env = luainjs.createEnv();
     const lib = new luainjs.Table({
