@@ -1,5 +1,5 @@
 import index from "./index.html"
-import creator from "./creator.html"
+import creator from "./creator/index.html"
 
 Bun.serve(
   {

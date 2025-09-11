@@ -37,7 +37,6 @@ end
 function update()
     lico.resetCanvas()
 
-    -- print(counter % 200)
     enemyShouldJump = math.random(20) == 1
 
     if enemy.pos.y > 120 and running then
@@ -66,7 +65,6 @@ function update()
         -- Player is grounded
         player.pos.y = 120
         player.speedY = 0
-        print(lico.input().y)
         if lico.input().y < 0 then
             player.speedY = -2
         end
@@ -83,9 +81,9 @@ function update()
 
     if player.pos.x < enemy.pos.x + 4 and player.pos.x > enemy.pos.x - 4 and player.pos.y < enemy.pos.y + 4 and
         player.pos.y > enemy.pos.y - 4 and running then
-        print("OH FUCK")
         lico.stopSound(0)
         music.unload()
+
         running = false
     end
 

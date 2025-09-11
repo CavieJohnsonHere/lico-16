@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>hi</title>
+    <title>lico 16 player</title>
     <script src="./scripts/main.ts"></script>
     <style>
       body {
         background-color: hsl(0, 0%, 15%);
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         width: 100vw;
@@ -31,6 +32,8 @@
         justify-content: center;
         align-items: center;
         z-index: 20;
+
+        cursor: pointer;
       }
 
       #overlay > div {
@@ -75,7 +78,7 @@
         z-index: 40;
       }
 
-      #nogame {
+      button {
         background-color: hsl(0, 0%, 30%);
         border: none;
         color: hsl(0, 0%, 80%);
@@ -85,13 +88,78 @@
         font-size: medium;
       }
 
-      #nogame:hover {
+      button:hover {
         background-color: hsl(0, 0%, 40%);
+      }
+
+      #nogame, #loadcart {
+        width: 50%;
+      }
+
+      #nogame-container {
+        display: flex;
+        gap: 20px;
+      }
+
+      input[type="file"]::file-selector-button {
+        background-color: hsl(0, 0%, 30%);
+        border: none;
+        color: hsl(0, 0%, 80%);
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: medium;
+      }
+
+      input[type="file"]::file-selector-button:hover {
+        background-color: hsl(0, 0%, 40%);
+      }
+
+      input[type="file"] {
+        color: hsl(0, 0%, 80%);
+      }
+
+      #memory {
+        background-color: gray;
+        height: 10px;
+        border: 2px solid black;
+        width: 140px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+      #memory > div {
+        background-color: hsl(209, 75%, 50%);
+        height: 100%;
+        width: 0%;
+      }
+
+      #storage {
+        background-color: gray;
+        height: 10px;
+        border: 2px solid black;
+        width: 140px;
+        position: absolute;
+        top: 24px;
+        right: 10px;
+      }
+
+      #storage > div {
+        background-color: hsl(51, 75%, 50%);
+        height: 100%;
+        width: 0%;
       }
     </style>
   </head>
 
   <body>
+    <div id="memory">
+      <div></div>
+    </div>
+    <div id="storage">
+      <div></div>
+    </div>
     <div id="overlay">
       <div></div>
     </div>
@@ -99,6 +167,6 @@
     <!-- <div id="controls"> -->
     <!-- <div></div> -->
     <!-- </div> -->
-    <input type="file" title="Bye" name="Hello" id="" />
+    <input type="file" accept=".json, .jsonc, .lua" multiple/>
   </body>
 </html>

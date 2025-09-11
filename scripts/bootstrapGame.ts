@@ -1,5 +1,5 @@
 import { parse } from "jsonc-parser";
-import { loadCartridge } from "./cartridge";
+import { addCodeStorageUsage, loadCartridge, logStorage } from "./cartridge";
 import { startGame, setStart, setUpdate } from "./game";
 import handleClick from "./handleClick";
 import { handleKeyDown, handleKeyUp, keysPressed } from "./handleInput";
@@ -12,11 +12,9 @@ import * as luainjs from "lua-in-js";
 export default async function bootstrapGame({
   ensureSelectedFile,
   canvasElement,
-  luaScriptRes,
 }: {
   ensureSelectedFile: boolean;
   canvasElement: HTMLElement;
-  luaScriptRes: string;
 }) {
   // Remove the overlay after the first click
   const overlay = document.getElementById("overlay");
@@ -41,27 +39,66 @@ export default async function bootstrapGame({
     handleClick as EventListenerOrEventListenerObject
   );
 
-  const file = document.querySelector("input")?.files?.item(0);
+  const rawFiles = document.querySelector("input")?.files;
 
-  if (!file && ensureSelectedFile) {
-    console.error("No file selected.");
-    document.body.innerHTML += `<div id="no-cartridge-warning"><h1>No cartridge loaded</h1><button id="nogame">Continue without loading a cartridge</button></div>`;
-    document.querySelector("button#nogame")?.addEventListener("click", () => {
-      document.body.querySelector("div#no-cartridge-warning")?.remove();
-      bootstrapGame({ ensureSelectedFile: false, canvasElement, luaScriptRes });
-    });
+  if (!rawFiles) {
+    document.body.innerHTML = `<h1>Something went wrong</h1>`;
     return;
   }
 
-  const error = loadCartridge(parse((await file?.text()) || "") || []);
+  const files = Array.from(rawFiles);
 
-  if (error.isErrored) {
-    console.error("Error loading cartridge:", error.error);
-    document.body.innerHTML = `<h1>Error loading cartridge: ${error.error}</h1>`;
+  const jsonFiles = files.filter(
+    (file) => file.name.endsWith(".json") || file.name.endsWith(".jsonc")
+  );
+  const luaFiles = files.filter((file) => file.name.endsWith(".lua"));
+
+  if (!jsonFiles[0] && ensureSelectedFile) {
+    document.body.innerHTML += `<div id="no-cartridge-warning"><h1>No cartridge loaded</h1><div id="nogame-container"><button id="nogame">Continue without loading a cartridge</button><button id="loadcart">Load cartridge</button></div></div>`;
+
+    document.querySelector("button#nogame")?.addEventListener("click", () => {
+      document.body.querySelector("div#no-cartridge-warning")?.remove();
+      bootstrapGame({ ensureSelectedFile: false, canvasElement });
+    });
+
+    document.querySelector("button#loadcart")?.addEventListener("click", () => {
+      document.querySelector<HTMLInputElement>('input[type="file"]')?.click();
+      window.alert("Please select a cartridge file to load.");
+      document.body.querySelector("div#no-cartridge-warning")?.remove();
+      bootstrapGame({ ensureSelectedFile: false, canvasElement });
+    });
+
     return;
+  }
+
+  let code = "";
+
+  const codeFromFile = (await luaFiles[0]?.text()) || "";
+
+  const codeError = loadCartridge(
+    parse((await jsonFiles[0]?.text()) || "") || []
+  );
+
+  if (
+    codeError.isErrored &&
+    !(codeError.error == "No code in cartridge" && codeFromFile)
+  ) {
+    console.error("Error loading cartridge:", codeError.error);
+    document.body.innerHTML = `<h1><span>Error loading cartridge:</span> ${codeError.error}</h1>`;
+    return;
+  } else if (codeFromFile) {
+    code = codeFromFile;
+    addCodeStorageUsage(code);
+  } else if (codeError.isErrored) {
+    document.body.innerHTML = `<h1><span>Error loading cartridge:</span> ${codeError.error}</h1>`;
+    return;
+  } else {
+    code = codeError.content;
   }
 
   console.log("Cartridge loaded successfully");
+
+  logStorage();
 
   const env = luainjs.createEnv();
   try {
@@ -92,9 +129,12 @@ export default async function bootstrapGame({
     });
     env.loadLib("lico", lib);
 
-    env.parse(luaScriptRes).exec();
+    env.parse(code).exec();
   } catch (e) {
     console.error("Error executing Lua script:", e);
-    document.body.innerHTML = `<h1><span>Error executing Lua script:</span> ${e}</h1>`;
+    document.body.innerHTML = `<div><h1><span>Error executing Lua script:</span> ${e}</h1></div><button>Reload</button>`;
+    document.querySelector("button")?.addEventListener("click", () => {
+      window.location.reload();
+    });
   }
 }

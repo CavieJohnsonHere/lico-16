@@ -5,9 +5,6 @@ import { setupCanvas } from "./setupCanvas";
 async function main() {
   const canvasElement = document.getElementById("canvas");
 
-  const luaScriptFetch = await fetch("/lua");
-  const luaScriptRes = await luaScriptFetch.text();
-
   if (!canvasElement) {
     console.error("Canvas was not found.");
     window.alert("Something went wrong...");
@@ -20,7 +17,7 @@ async function main() {
   document
     .querySelector("#overlay")
     ?.addEventListener("click", () =>
-      bootstrapGame({ ensureSelectedFile: true, canvasElement, luaScriptRes })
+      bootstrapGame({ ensureSelectedFile: true, canvasElement })
     );
 }
 

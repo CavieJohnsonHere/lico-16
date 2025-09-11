@@ -7,13 +7,19 @@
     "start": "bun run index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9"
   },
   "peerDependencies": {
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "bun-plugin-tailwind": "^0.0.15",
     "jsonc-parser": "^3.3.1",
-    "lua-in-js": "^2.2.5"
+    "lua-in-js": "^2.2.5",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.13"
   }
 }
