@@ -9,6 +9,7 @@ import writeSprite, { type Color } from "./writeSprite";
 import resetCanvas from "./resetCanvas";
 import { playLoadedSound, stopSound } from "./playSound";
 import { loadCartridge } from "./cartridge";
+import {parse} from "jsonc-parser"
 
 async function main() {
   const canvasElement = document.getElementById("canvas");
@@ -25,7 +26,7 @@ async function main() {
   setCanvas(canvasElement as HTMLCanvasElement);
   setupCanvas();
 
-  document.addEventListener("click", async () => {
+  document.querySelector("#overlay")?.addEventListener("click", async () => {
     // Remove the overlay after the first click
     const overlay = document.getElementById("overlay");
     if (overlay) {
@@ -49,9 +50,9 @@ async function main() {
       handleClick as EventListenerOrEventListenerObject
     );
 
-    const error = loadCartridge(
-      (await document.querySelector("input")?.files?.item(0)?.json()) || []
-    );
+    const file = document.querySelector("input")?.files?.item(0);
+
+    const error = loadCartridge(parse(await file?.text() || "") || []);
 
     if (error.isErrored) {
       console.error("Error loading cartridge:", error.error);
