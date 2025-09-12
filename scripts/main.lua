@@ -41,7 +41,7 @@ function update()
 
     if enemy.pos.y > 120 and running then
         enemy.pos.y = 120
-        enemy.speedY = enemyShouldJump and -2 or 0
+        enemy.speedY = enemyShouldJump and -4 or 0
     elseif running then
         enemy.speedY = enemy.speedY + gravity
         enemy.pos.y = enemy.pos.y + enemy.speedY

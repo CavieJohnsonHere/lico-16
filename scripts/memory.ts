@@ -50,7 +50,7 @@ type LoadedObjectRefrence = {
 function logMemory() {
   const percentage = ((memoryUsage / MEMORY_SIZE) * 100).toFixed(2);
 
-  console.log(`Fictional memory usage: ${percentage}% ${Array(Math.max(10 - percentage.length, 0)).join(" ")} ${Math.ceil(memoryUsage/8)}B`);
+  console.log(`Memory usage: ${percentage}% ${Array(Math.max(10 - percentage.length, 0)).join(" ")} ${Math.ceil(memoryUsage/8)}B`);
   
   const memoryBar = document.querySelector<HTMLDivElement>("#memory > div");
   if (memoryBar) memoryBar.style.width = `${Math.min((memoryUsage / MEMORY_SIZE) * 100, 100)}%`;
