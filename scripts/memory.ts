@@ -13,7 +13,7 @@ export function addCodeMemoryUsage(code: string) {
 
 type LoadedAsset = {
   type: "image";
-  content: Color[];
+  content: { palette: number; pixels: number[] };
 };
 
 // the code doesn't exist in memory, it's existence in memory is implied. It may be added later as extentions you could load to get around the bit limit but for now you have to use you imagination
@@ -37,7 +37,11 @@ export function writeLoadedSprite(
 ) {
   if (loadedObject.type != "image") throw new Error(`Invalid type`);
 
-  writeSprite(loadedObject.content, pos.strValues);
+  writeSprite(
+    loadedObject.content.palette,
+    loadedObject.content.pixels,
+    pos.strValues
+  );
 }
 
 const refrences: Record<number, LoadedObject | undefined> = {};
@@ -50,10 +54,18 @@ type LoadedObjectRefrence = {
 function logMemory() {
   const percentage = ((memoryUsage / MEMORY_SIZE) * 100).toFixed(2);
 
-  console.log(`Memory usage: ${percentage}% ${Array(Math.max(10 - percentage.length, 0)).join(" ")} ${Math.ceil(memoryUsage/8)}B`);
-  
+  console.log(
+    `Memory usage: ${percentage}% ${Array(
+      Math.max(10 - percentage.length, 0)
+    ).join(" ")} ${Math.ceil(memoryUsage / 8)}B`
+  );
+
   const memoryBar = document.querySelector<HTMLDivElement>("#memory > div");
-  if (memoryBar) memoryBar.style.width = `${Math.min((memoryUsage / MEMORY_SIZE) * 100, 100)}%`;
+  if (memoryBar)
+    memoryBar.style.width = `${Math.min(
+      (memoryUsage / MEMORY_SIZE) * 100,
+      100
+    )}%`;
 }
 
 function getLoadedObjectRefrence(

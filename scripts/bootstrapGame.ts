@@ -28,10 +28,6 @@ export default async function bootstrapGame({
   );
   document.removeEventListener("keydown", handleKeyDown);
   document.removeEventListener("keyup", handleKeyUp);
-
-  const sprite: Color[] = [];
-
-  writeSprite(sprite, { x: 50, y: 50 });
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
   document.addEventListener(
