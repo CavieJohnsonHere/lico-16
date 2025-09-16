@@ -16,7 +16,7 @@ function exportImageData(imageData: number[][], paletteIndex: number) {
     });
   });
 
-  navigator.clipboard.writeText(JSON.stringify({palette: paletteIndex, colors: exportedData}));
+  navigator.clipboard.writeText(JSON.stringify({palette: paletteIndex, pixels: exportedData}));
 }
 
 export default function App() {
