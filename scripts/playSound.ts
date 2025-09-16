@@ -3,17 +3,71 @@ import type { LoadedSound } from "./memory";
 export type Sound = {
   type: "A" | "B" | "C" | "D";
 
-  // C5 is 0
-  note: number;
+  // C5 is 0, 31 notes for 5 bits of memory
+  note:
+    | -15
+    | -14
+    | -13
+    | -12
+    | -11
+    | -10
+    | -9
+    | -8
+    | -7
+    | -6
+    | -5
+    | -4
+    | -3
+    | -2
+    | -1
+    | 0
+    | 1
+    | 2
+    | 3
+    | 4
+    | 5
+    | 6
+    | 7
+    | 8
+    | 9
+    | 10
+    | 11
+    | 12
+    | 13
+    | 14
+    | 15;
 
-  // Between 0 and 1
-  volume: number;
+  // Between 0 and 1, 7 options for 3 bits
+  volume: 0 | 0.25 | 0.3 | 0.5 | 0.75 | 0.85 | 0.9 | 1;
 
-  // in ms
-  length: number;
+  // in ms, 63 options for 6 bits
+  // I'm to lazy to figure out the lengths...
+  length: 0 | 1 | 100 | 350 | 500 | 700 | 750 | 1400;
 };
 
+const acceptableNotes = [
+  -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3,
+  4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+];
+
+const acceptableVolumes = [0, 0.25, 0.3, 0.5, 0.75, 0.85, 0.9, 1];
+const acceptableLengths = [0, 1, 100, 350, 500, 700, 750, 1400];
+
+function soundIsAcceptable(sound: Sound) {
+  return (
+    ["A", "B", "C", "D"].includes(sound.type) &&
+    acceptableNotes.includes(sound.note) &&
+    acceptableVolumes.includes(sound.volume) &&
+    acceptableLengths.includes(sound.length)
+  );
+}
+
 export default function playSound(sound: Sound) {
+  if (!soundIsAcceptable(sound)) {
+    console.warn("Unacceptable sound");
+    return
+  };
+
   // Create audio context if not already present
   const AudioContext =
     window.AudioContext || (window as any).webkitAudioContext;
@@ -63,7 +117,7 @@ export default function playSound(sound: Sound) {
   };
 }
 
-const sounds: NodeJS.Timeout[][] = []
+const sounds: NodeJS.Timeout[][] = [];
 
 export async function playLoadedSound(loadedSound: LoadedSound, id: number) {
   // Play each sound one after the other (sequentially).
@@ -76,15 +130,17 @@ export async function playLoadedSound(loadedSound: LoadedSound, id: number) {
 
     // Wait for its duration before playing the next one
     await new Promise((resolve) => {
-      const soundTimeout = setTimeout(resolve, sound.length)
+      const soundTimeout = setTimeout(resolve, sound.length);
       sounds[id]?.push(soundTimeout);
     });
   }
 }
 
 export function stopSound(id: number) {
-  const soundsToRemove = sounds[id]
+  const soundsToRemove = sounds[id];
   if (soundsToRemove) {
-    soundsToRemove.forEach(soundToRemove => typeof soundToRemove.close == "function" ? soundToRemove.close() : "")
+    soundsToRemove.forEach((soundToRemove) =>
+      typeof soundToRemove.close == "function" ? soundToRemove.close() : ""
+    );
   }
 }

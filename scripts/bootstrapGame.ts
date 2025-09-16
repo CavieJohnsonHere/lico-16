@@ -6,7 +6,6 @@ import { handleKeyDown, handleKeyUp, keysPressed } from "./handleInput";
 import { load, writeLoadedSprite } from "./memory";
 import { playLoadedSound, stopSound } from "./playSound";
 import resetCanvas from "./resetCanvas";
-import writeSprite, { type Color } from "./writeSprite";
 import * as luainjs from "lua-in-js";
 
 export default async function bootstrapGame({
@@ -35,16 +34,16 @@ export default async function bootstrapGame({
     handleClick as EventListenerOrEventListenerObject
   );
 
-  const rawFiles = document.querySelector("input")?.files;
+  let rawFiles = document.querySelector("input")?.files;
 
   if (!rawFiles) {
     document.body.innerHTML = `<h1>Something went wrong</h1>`;
     return;
   }
 
-  const files = Array.from(rawFiles);
+  let files = Array.from(rawFiles);
 
-  const jsonFiles = files.filter(
+  let jsonFiles = files.filter(
     (file) => file.name.endsWith(".json") || file.name.endsWith(".jsonc")
   );
   const luaFiles = files.filter((file) => file.name.endsWith(".lua"));
@@ -59,9 +58,30 @@ export default async function bootstrapGame({
 
     document.querySelector("button#loadcart")?.addEventListener("click", () => {
       document.querySelector<HTMLInputElement>('input[type="file"]')?.click();
-      window.alert("Please select a cartridge file to load.");
-      document.body.querySelector("div#no-cartridge-warning")?.remove();
-      bootstrapGame({ ensureSelectedFile: false, canvasElement });
+
+      const a = () => {
+        rawFiles = document.querySelector("input")?.files;
+
+        if (!rawFiles) {
+          document.body.innerHTML = `<h1>Something went wrong</h1>`;
+          return;
+        }
+
+        files = Array.from(rawFiles);
+
+        jsonFiles = files.filter(
+          (file) => file.name.endsWith(".json") || file.name.endsWith(".jsonc")
+        );
+
+        if (jsonFiles.length > 0) {
+          document.body.querySelector("div#no-cartridge-warning")?.remove();
+          bootstrapGame({ ensureSelectedFile: false, canvasElement });
+        } else {
+          requestAnimationFrame(a);
+        }
+      };
+
+      a();
     });
 
     return;
