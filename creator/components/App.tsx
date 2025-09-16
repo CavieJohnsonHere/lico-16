@@ -69,7 +69,7 @@ export default function App() {
       </div>
 
       <div className="bg-black flex-grow">
-        <div className="grid grid-cols-8 aspect-square">
+        <div className="grid grid-cols-8 aspect-square h-screen">
           {[...Array(8)].map((_, y) =>
             [...Array(8)].map((_, x) => <Pixel x={x} y={y} key={`${x},${y}`} />)
           )}
