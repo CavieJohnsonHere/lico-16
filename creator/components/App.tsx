@@ -19,10 +19,34 @@ function exportImageData(imageData: number[][], paletteIndex: number) {
   navigator.clipboard.writeText(JSON.stringify({palette: paletteIndex, pixels: exportedData}));
 }
 
+function importImageData(setPixel: (x: number, y: number, colorIndex: number) => void, setSelected: (value: number) => void) {
+  navigator.clipboard.readText().then((text) => {
+    try {
+      const data = JSON.parse(text);
+      
+      if (data.palette !== undefined && Array.isArray(data.pixels)) {
+        setSelected(data.palette);
+        
+        data.pixels.forEach((colorIndex: number, index: number) => {
+          const x = index % 8;
+          const y = Math.floor(index / 8);
+          setPixel(x, y, colorIndex);
+        });
+      } else {
+        alert("Invalid import data format");
+      }
+    } catch (e) {
+      alert("Failed to parse clipboard data");
+    }
+  }).catch(() => {
+    alert("Failed to read from clipboard");
+  });
+}
+
 export default function App() {
   const { popup, setPopup } = usePopup();
-  const { pixels } = useImage();
-  const { selected } = usePalette();
+  const { pixels, setPixel, clear } = useImage();
+  const { selected, setSelected } = usePalette();
 
   useEffect(() => {
     document.addEventListener("keydown", (e) => {
@@ -33,13 +57,29 @@ export default function App() {
   return (
     <div className="flex">
       <div className="w-80 p-5 h-screen bg-neutral-800">
-        <div className="flex gap-5">
+        <div className="grid grid-cols-2 gap-5">
           <Button
             mode="secondary"
             className="w-1/2"
             onClick={() => setPopup("palette")}
           >
             Select Palette
+          </Button>
+
+          <Button
+            mode="secondary"
+            className="w-1/2"
+            onClick={() => importImageData(setPixel, setSelected)}
+          >
+            Import
+          </Button>
+
+          <Button
+            mode="secondary"
+            className="w-1/2"
+            onClick={clear}
+          >
+            Reset
           </Button>
 
           <Button

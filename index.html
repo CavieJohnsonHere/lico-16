@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title>lico 16 player</title>
     <script src="./scripts/main.ts"></script>
     <style>
+      :root {
+        --def-hue: 0;
+      }
+
       body {
-        background-color: hsl(0, 0%, 15%);
+        background-color: hsl(var(--def-hue), 5%, 10%);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -14,12 +18,24 @@
         height: 100vh;
         padding: 0;
         margin: 0;
-        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
 
       canvas {
         background-color: black;
-        scale: 1;
+      }
+
+      #outline {
+        background-color: hsl(var(--def-hue), 25%, 50%);
+        padding: 10px;
+        padding-bottom: 6px;
+        border-bottom: 10px solid hsl(var(--def-hue), 35%, 40%);
+        height: min-content;
+      }
+
+      #inline {
+        background-color: hsl(var(--def-hue), 35%, 40%);
+        padding-top: 5px;
       }
 
       #overlay {
@@ -46,16 +62,8 @@
         transform: rotate(90deg);
       }
 
-      input {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 30;
-        opacity: 0.5;
-      }
-
       h1 {
-        color: hsl(0, 20%, 80%);
+        color: white;
         font-size: medium;
         text-align: center;
         padding: 40px;
@@ -63,8 +71,18 @@
       }
 
       h1 > span {
-        color: hsl(0, 60%, 70%);
         font-weight: bold;
+      }
+
+      #no-cartridge-warning-bg {
+        position: absolute;
+        background-color: hsla(0, 0%, 0%, 0.5);
+        backdrop-filter: blur(5px);
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        z-index: 39;
       }
 
       #no-cartridge-warning {
@@ -72,84 +90,165 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background-color: hsl(0, 0%, 20%);
-        border: 2px solid hsl(0, 0%, 40%);
-        border-radius: 10px;
+        background-color: hsl(var(--def-hue), 5%, 20%);
+        border-bottom: 10px solid hsl(var(--def-hue), 5%, 10%);
         padding: 20px;
         z-index: 40;
       }
 
-      button {
-        background-color: hsl(0, 0%, 30%);
+      #no-cartridge-warning button {
+        background-color: hsl(var(--def-hue), 75%, 30%);
         border: none;
-        color: hsl(0, 0%, 80%);
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: medium;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        box-shadow: 0 5px 0 0 hsl(var(--def-hue), 75%, 20%);
+        position: relative;
       }
 
-      button:hover {
-        background-color: hsl(0, 0%, 40%);
+      #no-cartridge-warning button::after {
+        content: "-";
+        color: hsl(var(--def-hue), 50%, 80%);
+        font-size: 40px;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
       }
 
-      #nogame, #loadcart {
+      #no-cartridge-warning button:active {
+        rotate: 90deg;
+      }
+
+      /* #nogame,
+      #loadcart {
         width: 50%;
-      }
+      } */
 
       #nogame-container {
-        display: flex;
+        display: grid;
         gap: 20px;
       }
 
-      input[type="file"]::file-selector-button {
-        background-color: hsl(0, 0%, 30%);
-        border: none;
-        color: hsl(0, 0%, 80%);
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: medium;
-      }
-
-      input[type="file"]::file-selector-button:hover {
-        background-color: hsl(0, 0%, 40%);
-      }
-
-      input[type="file"] {
-        color: hsl(0, 0%, 80%);
-      }
-
       #memory {
-        background-color: gray;
-        height: 10px;
-        border: 2px solid black;
+        background-color: hsl(var(--def-hue), 25%, 50%);
+        border-bottom: 5px solid hsl(var(--def-hue), 35%, 40%);
+        height: 15px;
+        margin: 5px;
         width: 140px;
         position: absolute;
         top: 10px;
         right: 10px;
+        padding: 5px;
+        padding-bottom: 15px;
       }
 
       #memory > div {
-        background-color: hsl(209, 75%, 50%);
+        background-color: hsl(var(--def-hue), 100%, 50%);
+        border-bottom: 5px solid hsl(var(--def-hue), 100%, 40%);
+        box-shadow: 0 5px 0 0 hsl(var(--def-hue), 35%, 40%); /* second border */
         height: 100%;
         width: 0%;
       }
 
       #storage {
-        background-color: gray;
-        height: 10px;
-        border: 2px solid black;
+        background-color: hsl(var(--def-hue), 25%, 50%);
+        border-bottom: 5px solid hsl(var(--def-hue), 35%, 40%);
+        height: 15px;
+        margin: 5px;
         width: 140px;
         position: absolute;
-        top: 24px;
+        top: 60px;
         right: 10px;
+        padding: 5px;
+        padding-bottom: 15px;
       }
 
       #storage > div {
-        background-color: hsl(51, 75%, 50%);
+        background-color: hsl(var(--def-hue), 100%, 50%);
+        border-bottom: 5px solid hsl(var(--def-hue), 100%, 40%);
+        box-shadow: 0 5px 0 0 hsl(var(--def-hue), 35%, 40%); /* second border */
         height: 100%;
         width: 0%;
+      }
+
+      #file-picker {
+        position: absolute;
+        top: 25px;
+        left: 10px;
+        z-index: 20;
+      }
+
+      #file-input {
+        display: none;
+      }
+
+      .pop-button {
+        position: relative;
+        width: fit-content;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .pop-base {
+        height: 100%;
+        background-color: hsl(var(--def-hue), 75%, 20%);
+        border-radius: 0;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+      }
+
+      .pop-top {
+        background-color: hsl(var(--def-hue), 75%, 30%);
+        color: white;
+        padding: 10px 20px;
+        font-size: medium;
+        border-radius: 0;
+        position: relative;
+        z-index: 2;
+        top: -7px;
+        transition: top 1s
+          linear(
+            0,
+            0.01 0.5%,
+            0.046 1.1%,
+            0.184 2.3%,
+            0.925 6.4%,
+            1.164 8%,
+            1.316 9.6%,
+            1.357 10.4%,
+            1.375 11.2%,
+            1.375 11.8%,
+            1.364 12.4%,
+            1.312 13.7%,
+            1.028 17.9%,
+            0.934 19.6%,
+            0.881 21.1%,
+            0.859 22.6%,
+            0.862 23.8%,
+            0.881 25.1%,
+            1.025 31.1%,
+            1.045 32.6%,
+            1.053 34.1%,
+            1.045 36.6%,
+            0.991 42.6%,
+            0.98 45.5%,
+            1.007 56.9%,
+            0.997 68.3%,
+            1
+          );
+      }
+
+      .pop-button:hover .pop-top {
+        top: -12px;
+      }
+
+      .pop-button:active .pop-top {
+        top: 0;
+        transition: top 100ms ease-in-out;
       }
     </style>
   </head>
@@ -164,7 +263,22 @@
     <div id="overlay">
       <div></div>
     </div>
-    <canvas id="canvas"></canvas>
-    <input type="file" accept=".json, .jsonc, .lua" multiple/>
+    <div id="outline">
+      <div id="inline"></div>
+      <canvas id="canvas"></canvas>
+    </div>
+    <div id="file-picker">
+      <div class="pop-button">
+        <div class="pop-base"></div>
+        <div class="pop-top" id="file-btn">Load Cartridge</div>
+      </div>
+
+      <input
+        id="file-input"
+        type="file"
+        accept=".json, .jsonc, .lua"
+        multiple
+      />
+    </div>
   </body>
 </html>

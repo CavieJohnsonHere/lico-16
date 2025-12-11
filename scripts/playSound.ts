@@ -65,8 +65,8 @@ function soundIsAcceptable(sound: Sound) {
 export default function playSound(sound: Sound) {
   if (!soundIsAcceptable(sound)) {
     console.warn("Unacceptable sound");
-    return
-  };
+    return;
+  }
 
   // Create audio context if not already present
   const AudioContext =
@@ -120,6 +120,8 @@ export default function playSound(sound: Sound) {
 const sounds: NodeJS.Timeout[][] = [];
 
 export async function playLoadedSound(loadedSound: LoadedSound, id: number) {
+  console.log(loadedSound)
+
   // Play each sound one after the other (sequentially).
   for (const sound of loadedSound.content) {
     // Reset sounds from the id
@@ -137,10 +139,9 @@ export async function playLoadedSound(loadedSound: LoadedSound, id: number) {
 }
 
 export function stopSound(id: number) {
+  console.log("Stopping sound", id);
   const soundsToRemove = sounds[id];
   if (soundsToRemove) {
-    soundsToRemove.forEach((soundToRemove) =>
-      typeof soundToRemove.close == "function" ? soundToRemove.close() : ""
-    );
+    soundsToRemove.forEach((soundToRemove) => clearTimeout(soundToRemove));
   }
 }

@@ -3,6 +3,10 @@ import { setCanvas } from "./canvas";
 import { setupCanvas } from "./setupCanvas";
 
 async function main() {
+  document.getElementById("file-btn")!.addEventListener("click", () => {
+    (document.getElementById("file-input") as HTMLInputElement).click();
+  });
+
   const canvasElement = document.getElementById("canvas");
 
   if (!canvasElement) {

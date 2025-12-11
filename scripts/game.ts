@@ -21,10 +21,19 @@ export function setUpdate(update: () => void) {
 export function startGame() {
   game.start();
 
-  const a = () => {
-    game.update();
+  const frameTime = 1000 / 60; // 60fps = ~16.67ms per frame
+  let lastTime = performance.now();
+
+  const a = (currentTime: number) => {
+    const deltaTime = currentTime - lastTime;
+
+    if (deltaTime >= frameTime) {
+      game.update();
+      lastTime = currentTime;
+    }
+
     requestAnimationFrame(a);
   };
 
-  a();
+  requestAnimationFrame(a);
 }

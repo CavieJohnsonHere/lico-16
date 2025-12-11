@@ -7,6 +7,7 @@ import { load, writeLoadedSprite } from "./memory";
 import { playLoadedSound, stopSound } from "./playSound";
 import resetCanvas from "./resetCanvas";
 import * as luainjs from "lua-in-js";
+import fillCanvas from "./fillCanvas";
 
 export default async function bootstrapGame({
   ensureSelectedFile,
@@ -49,7 +50,15 @@ export default async function bootstrapGame({
   const luaFiles = files.filter((file) => file.name.endsWith(".lua"));
 
   if (!jsonFiles[0] && ensureSelectedFile) {
-    document.body.innerHTML += `<div id="no-cartridge-warning"><h1>No cartridge loaded</h1><div id="nogame-container"><button id="nogame">Continue without loading a cartridge</button><button id="loadcart">Load cartridge</button></div></div>`;
+    document.body.innerHTML += `<div id="no-cartridge-warning">
+      <h1>No cartridge loaded</h1>
+      <div id="nogame-container">
+        <button id="nogame"></button><div>Continue without loading a cartridge</div>
+        <button id="loadcart"></button><div>Load cartridge</div>
+      </div>
+    </div>
+    
+    <div id="no-cartridge-warning-bg"></div>`;
 
     document.querySelector("button#nogame")?.addEventListener("click", () => {
       document.body.querySelector("div#no-cartridge-warning")?.remove();
@@ -127,6 +136,7 @@ export default async function bootstrapGame({
       resetCanvas,
       playLoadedSound,
       stopSound,
+      fillCanvas,
       input: () =>
         new luainjs.Table({
           x: keysPressed.get("ArrowRight")
