@@ -1,9 +1,12 @@
 import { type Pixel } from "./pixel";
 import ctx from "./canvas";
 import { SCALE } from "./setupCanvas";
+import { addMemoryUsage, memoryUsage } from "./memory";
 
 export default function writePixel(pixel: Pixel) {
   // Get the 2D context from the canvas
+
+  addMemoryUsage(16);
 
   if (pixel.a) return;
 
