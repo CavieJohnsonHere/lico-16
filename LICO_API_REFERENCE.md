@@ -25,11 +25,11 @@ A comprehensive guide to the LICO-16 fantasy console API, including all availabl
 
 LICO-16 is a fantasy console that runs Lua scripts and provides a complete API for creating retro-style games and applications. The console features:
 
-- **Canvas**: 128x128 pixel display, scaled 4x for viewing
+- **Output**: 128x128 pixel display, scaled 4x for viewing
 - **Color Palettes**: 15 colors per palette (plus 1 transparent color = 16 total)
 - **Sprites**: 8x8 pixel art assets stored in cartridges
-- **Audio**: Web Audio API-based sound synthesis
-- **Input**: Arrow keys, X key (jump), and C key (action)
+- **Audio**: Comprehensive audio feature that are limited to promote creativity
+- **Input**: Arrow keys, X key, and C key (similar to PICO-8)
 - **Storage**: Cartridge-based asset loading system
 
 All LICO-16 functions are accessed through the global `lico` object in Lua.
@@ -43,11 +43,13 @@ All LICO-16 functions are accessed through the global `lico` object in Lua.
 Sets the initialization function that runs once when the game starts.
 
 **Parameters:**
+
 - `function`: A Lua function with no parameters
 
 **Returns:** None
 
 **Example:**
+
 ```lua
 function init()
   print("Game started!")
@@ -58,6 +60,7 @@ lico.setStart(init)
 ```
 
 **Use Cases:**
+
 - Load sprites
 - Initialize game state
 - Set up level data
@@ -70,11 +73,13 @@ lico.setStart(init)
 Sets the update function that runs every frame (~60 FPS).
 
 **Parameters:**
+
 - `function`: A Lua function with no parameters
 
 **Returns:** None
 
 **Example:**
+
 ```lua
 function update()
   local input = lico.input()
@@ -87,6 +92,7 @@ lico.setUpdate(update)
 ```
 
 **Use Cases:**
+
 - Handle player input
 - Update game logic
 - Move entities
@@ -104,12 +110,14 @@ Begins the game loop, calling the update function every frame.
 **Returns:** None
 
 **Notes:**
+
 - Must be called after `setStart` and `setUpdate` are defined
-- Initiates the `setStart` function first
+- Runs asynchronously, meaning that the rest of the code will run.
 - Continues calling `setUpdate` until page reload
 - Targets 60 FPS with ~16.67ms per frame
 
 **Example:**
+
 ```lua
 lico.setStart(init)
 lico.setUpdate(update)
@@ -129,12 +137,14 @@ Clears the entire canvas to black and resets dimensions.
 **Returns:** None
 
 **Details:**
+
 - Clears all drawn sprites and pixels
 - Canvas is 128x128 pixels
 - Displayed at 4x scale (512x512 on screen)
-- Called at the start of each frame typically
+- Typically Called at the start of each frame
 
 **Example:**
+
 ```lua
 function update()
   lico.resetCanvas()
@@ -147,19 +157,29 @@ end
 
 ### `lico.fillCanvas(r, g, b)`
 
-Fills the entire canvas with a solid color (TypeScript function, use in initialization).
+Fills the entire canvas with a solid color.
 
 **Parameters:**
+
 - `r`: Red value (0-255)
 - `g`: Green value (0-255)
 - `b`: Blue value (0-255)
 
 **Returns:** None
 
+**Details:**
+
+- No transparency
+- Typically called after `clearCanvas()`
+- No memory usage
+
 **Example:**
+
 ```lua
--- Note: This is typically used from TypeScript bootstrap
--- In pure Lua, use resetCanvas() instead
+function update()
+  lico.resetCanvas()
+  lico.fillCanvas(255, 50, 50)
+end
 ```
 
 ---
@@ -171,21 +191,25 @@ Fills the entire canvas with a solid color (TypeScript function, use in initiali
 Loads a sprite or sound asset from the cartridge.
 
 **Parameters:**
-- `index`: Integer index of the asset in `smb_storage.jsonc` (0-12 recommended)
+
+- `index`: Integer index of the asset in your cartridge
 
 **Returns:** A Lua table with the following methods:
+
 - `.get()`: Returns the loaded asset object
 - `.unload()`: Removes the asset from memory
 
 **Details:**
+
 - Assets are stored in the cartridge JSON file
 - Each loaded asset consumes fictional memory
 - Call this in the `setStart` function
-- Maximum ~13 sprites per typical cartridge
+- Maximum ~500 sprites per typical cartridge
 - Throws error if index is out of range or memory exceeded
 - Use `.unload()` to free up memory when asset is no longer needed
 
 **Example:**
+
 ```lua
 function init()
   spriteRefs = {}
@@ -196,6 +220,7 @@ end
 ```
 
 **Memory Management Example:**
+
 ```lua
 local sprite = lico.load(5)
 
@@ -214,18 +239,21 @@ sprite.unload()
 Draws a loaded sprite to the canvas at the specified position.
 
 **Parameters:**
+
 - `sprite`: A loaded sprite object (returned from `.get()`)
 - `position`: Table with structure `{x = number, y = number}`
 
 **Returns:** None
 
 **Details:**
+
 - Draws 8x8 pixel sprites
 - Position is in pixels (0-127 for both X and Y)
 - Pixels outside canvas are clipped
 - Transparent pixels (color 0) are not drawn
 
 **Example:**
+
 ```lua
 local marioSprite = spriteRefs[0].get()
 lico.writeLoadedSprite(marioSprite, {x = 50, y = 75})
@@ -253,34 +281,33 @@ Returns the current input state.
 ```
 
 **Keyboard Mapping:**
+
 - `x`: Arrow Left (-1), Arrow Right (1)
 - `y`: Arrow Up (-1), Arrow Down (1)
 - `keyX`: X key (mapped to "x" in browser)
 - `keyC`: C key (mapped to "c" in browser)
 
 **Details:**
+
 - Called every frame in update function
 - Returns instantaneous state (no buffering)
 - Keys are case-insensitive
 - Multiple keys can be pressed simultaneously
 
 **Example:**
+
 ```lua
 function update()
   local input = lico.input()
-  
+
   if input.x == 1 then
     mario.x = mario.x + 2  -- Move right
   elseif input.x == -1 then
     mario.x = mario.x - 2  -- Move left
   end
-  
+
   if input.keyX == true then
     mario.velocityY = -8   -- Jump
-  end
-  
-  if input.keyC == true then
-    -- Break question blocks, pick up items, etc
   end
 end
 ```
@@ -294,12 +321,14 @@ end
 Plays a sound loaded from the cartridge.
 
 **Parameters:**
+
 - `loadedSound`: A loaded sound object from `lico.load()`
 - `id`: Unique sound ID (number)
 
 **Returns:** Async function (returns promise)
 
 **Details:**
+
 - Plays sounds sequentially if they have multiple notes
 - Uses Web Audio API for synthesis
 - Supports 4 waveform types: Pulse (A), Square (B), Triangle (C), Sawtooth (D)
@@ -307,6 +336,7 @@ Plays a sound loaded from the cartridge.
 - Wait for promise to complete before playing again with same ID
 
 **Example:**
+
 ```lua
 local jumpSound = lico.load(13)
 lico.playLoadedSound(jumpSound.get(), 0)
@@ -319,11 +349,13 @@ lico.playLoadedSound(jumpSound.get(), 0)
 Stops a currently playing sound by ID.
 
 **Parameters:**
+
 - `id`: The sound ID to stop
 
 **Returns:** None
 
 **Example:**
+
 ```lua
 lico.stopSound(0)  -- Stop the jump sound
 ```
@@ -354,11 +386,10 @@ lico.stopSound(0)  -- Stop the jump sound
 
 - **Target FPS**: 60 frames per second
 - **Frame Duration**: ~16.67 milliseconds
-- **Implementation**: RequestAnimationFrame with delta-time checking
 
 ---
 
-## Data Structures
+## Data Storage Structures
 
 ### Sprite Object (Loaded)
 
@@ -444,70 +475,6 @@ Image: palette_index (4 bits) + type (4 bits) + (pixels × 4 bits) = total bits
 Sound: type (2 bits) + note (5 bits) + volume (3 bits) + length (6 bits) × note_count
 ```
 
-### Color Palettes
-
-**Palette 0 (Basic-16)** - Default palette
-```
-0:  #00000000 - Transparent
-1:  #f2c0a2 - Light skin
-2:  #d82323 - Red
-3:  #98183c - Dark red
-4:  #1fcb23 - Bright green
-5:  #126d30 - Dark green
-6:  #26dddd - Cyan
-7:  #1867a0 - Dark blue
-8:  #934226 - Brown
-9:  #6c251e - Dark brown
-10: #f7e26c - Yellow
-11: #e76d14 - Orange
-12: #f2f2f9 - Light gray
-13: #6a5fa0 - Purple
-14: #161423 - Dark gray
-15: (palette index 15 - transparent)
-```
-
-**Palette 1 (24-Universal)**
-```
-0:  #00000000 - Transparent
-1:  #c35f7e - Mauve
-2:  #c0996c - Tan
-3:  #8acb00 - Olive green
-4:  #cbfc7c - Lime green
-5:  #96deee - Sky blue
-6:  #531726 - Maroon
-7:  #4c6153 - Dark green
-8:  #008a98 - Teal
-9:  #869ac0 - Slate blue
-10: #5d7d9b - Steel blue
-11: #ffffff - White
-12: #000000 - Black
-13: #3b2f50 - Dark purple
-14: #6063a3 - Indigo
-15: (palette index 15 - transparent)
-```
-
-**Palette 2 (E-16)**
-```
-0:  #00000000 - Transparent
-1:  #0f0012 - Very dark blue
-2:  #004f3f - Dark teal
-3:  #009e4a - Dark green
-4:  #1cba33 - Bright green
-5:  #d4f250 - Lime
-6:  #ffed87 - Light yellow
-7:  #330033 - Dark magenta
-8:  #b3122d - Crimson
-9:  #cc2929 - Red
-10: #e6653a - Orange
-11: #ffbb5c - Gold
-12: #330066 - Purple
-13: #1a0099 - Blue
-14: #1433cc - Royal blue
-15: (palette index 15 - transparent)
-```
-
----
-
 ## Error Handling
 
 ### Memory Errors
@@ -556,7 +523,7 @@ function init()
   for i = 0, 12 do
     spriteRefs[i] = lico.load(i)
   end
-  
+
   -- Store references for use in update()
 end
 
@@ -584,6 +551,7 @@ sprite.unload()
 ### Memory Display
 
 The game shows real-time memory usage:
+
 - **Storage Bar** (top right): Cartridge size vs 128MB limit
 - **Memory Bar** (below storage): Runtime memory vs 1MB limit
 
@@ -634,151 +602,29 @@ end
 
 function update()
   local input = lico.input()
-  
+
   -- Handle input
   if input.x == 1 then
     player.x = player.x + player.speed
   elseif input.x == -1 then
     player.x = player.x - player.speed
   end
-  
+
   if input.y == 1 then
     player.y = player.y + player.speed
   elseif input.y == -1 then
     player.y = player.y - player.speed
   end
-  
+
   -- Clamp to canvas
   if player.x < 0 then player.x = 0 end
   if player.x > 120 then player.x = 120 end
   if player.y < 0 then player.y = 0 end
   if player.y > 120 then player.y = 120 end
-  
+
   -- Draw
   lico.resetCanvas()
   lico.writeLoadedSprite(spriteRefs[0].get(), {x = player.x, y = player.y})
-end
-
-lico.setStart(init)
-lico.setUpdate(update)
-lico.startGame()
-```
-
-### Example 3: Super Mario Bros Implementation
-
-```lua
--- Game state
-local game = {score = 0, lives = 3}
-
--- Mario object
-local mario = {
-  x = 20, y = 80, width = 8, height = 8,
-  velocityX = 0, velocityY = 0,
-  isJumping = false, facingRight = true
-}
-
--- Physics constants
-local GRAVITY = 0.5
-local MAX_FALL_SPEED = 10
-
--- Loaded sprites
-local spriteRefs = {}
-local blocks = {}
-local enemies = {}
-
-function init()
-  lico.resetCanvas()
-  
-  -- Load sprites
-  for i = 0, 12 do
-    spriteRefs[i] = lico.load(i)
-  end
-  
-  -- Create level
-  createLevel()
-end
-
-function createLevel()
-  blocks = {}
-  enemies = {}
-  
-  -- Ground
-  for x = 0, 127, 8 do
-    table.insert(blocks, {x = x, y = 120, spriteIndex = 9, solid = true})
-  end
-  
-  -- Platform
-  for x = 32, 56, 8 do
-    table.insert(blocks, {x = x, y = 100, spriteIndex = 6, solid = true})
-  end
-  
-  -- Enemy
-  table.insert(enemies, {x = 60, y = 112, width = 8, height = 8, velocityX = -1, spriteIndex = 4})
-end
-
-function update()
-  local input = lico.input()
-  
-  -- Handle movement
-  if input.x == 1 then
-    mario.velocityX = 2
-    mario.facingRight = true
-  elseif input.x == -1 then
-    mario.velocityX = -2
-    mario.facingRight = false
-  else
-    mario.velocityX = 0
-  end
-  
-  -- Handle jumping
-  if input.keyX == true and not mario.isJumping then
-    mario.velocityY = -8
-    mario.isJumping = true
-  end
-  
-  -- Apply gravity
-  mario.velocityY = mario.velocityY + GRAVITY
-  if mario.velocityY > MAX_FALL_SPEED then
-    mario.velocityY = MAX_FALL_SPEED
-  end
-  
-  -- Update position
-  mario.x = mario.x + mario.velocityX
-  mario.y = mario.y + mario.velocityY
-  
-  -- Collision detection
-  checkCollisions()
-  
-  -- Draw
-  lico.resetCanvas()
-  
-  for _, block in ipairs(blocks) do
-    lico.writeLoadedSprite(spriteRefs[block.spriteIndex].get(), {x = block.x, y = block.y})
-  end
-  
-  for _, enemy in ipairs(enemies) do
-    lico.writeLoadedSprite(spriteRefs[enemy.spriteIndex].get(), {x = enemy.x, y = enemy.y})
-  end
-  
-  lico.writeLoadedSprite(spriteRefs[0].get(), {x = mario.x, y = mario.y})
-end
-
-function checkCollisions()
-  for _, block in ipairs(blocks) do
-    if block.solid then
-      local marioBottom = mario.y + mario.height
-      local blockTop = block.y
-      
-      if marioBottom <= blockTop + mario.velocityY and 
-         marioBottom > blockTop - mario.velocityY and
-         mario.x + mario.width > block.x and
-         mario.x < block.x + 8 then
-        mario.y = blockTop - mario.height
-        mario.velocityY = 0
-        mario.isJumping = false
-      end
-    end
-  end
 end
 
 lico.setStart(init)
@@ -798,12 +644,12 @@ end
 
 function update()
   local input = lico.input()
-  
+
   if input.keyX == true then
     -- Play jump sound
     lico.playLoadedSound(soundRefs.jump.get(), 0)
   end
-  
+
   if input.keyC == true then
     -- Stop sound
     lico.stopSound(0)
@@ -814,72 +660,6 @@ lico.setStart(init)
 lico.setUpdate(update)
 lico.startGame()
 ```
-
----
-
-## TypeScript/JavaScript Integration
-
-While LICO-16 uses Lua for game code, the system is bootstrapped from TypeScript:
-
-### Key TypeScript Modules
-
-- **`bootstrapGame.ts`**: Loads cartridge and initializes Lua environment
-- **`game.ts`**: Manages game loop and frame timing
-- **`canvas.ts`**: Handles canvas context
-- **`memory.ts`**: Manages asset loading and references
-- **`cartridge.ts`**: Loads cartridge files
-- **`writeSprite.ts`**: Renders sprites to canvas
-
-### Cartridge Format (JSONC)
-
-```jsonc
-[
-  {
-    "type": "image",
-    "content": {
-      "palette": 0,  // Palette index (0-2)
-      "pixels": [5, 5, 5, ...]  // 64 color indices
-    }
-  },
-  {
-    "type": "sound",
-    "content": [
-      {
-        "type": "A",  // "A"|"B"|"C"|"D"
-        "note": 0,    // -15 to 15
-        "volume": 0.5,  // 0|0.25|0.3|0.5|0.75|0.85|0.9|1
-        "length": 100   // 0|1|100|350|500|700|750|1400
-      }
-    ]
-  }
-]
-```
-
----
-
-## Performance Guidelines
-
-### Target Performance
-
-- **60 FPS**: Maintained with `requestAnimationFrame`
-- **Canvas Size**: 128x128 pixels (manageable)
-- **Max Sprites**: ~13 per cartridge
-- **Update Time**: < 16.67ms per frame
-
-### Optimization Techniques
-
-1. **Minimize redraws**: Only redraw changed sprites
-2. **Batch operations**: Group similar rendering calls
-3. **Reuse objects**: Don't create new tables every frame
-4. **Early termination**: Break loops when possible
-5. **Efficient collisions**: Use spatial partitioning for many objects
-
-### Common Bottlenecks
-
-- Loading sprites in update loop (load in init instead)
-- Creating new tables every frame (reuse or pool)
-- Complex collision checks (optimize with quadtrees for many objects)
-- Excessive sprite writes (cull off-screen sprites)
 
 ---
 
@@ -917,7 +697,7 @@ end
 
 ```lua
 function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2)
-  return x1 < x2 + w2 and x1 + w1 > x2 and 
+  return x1 < x2 + w2 and x1 + w1 > x2 and
          y1 < y2 + h2 and y1 + h1 > y2
 end
 ```
@@ -958,8 +738,8 @@ local camera = {x = 0, y = 0}
 function drawWithCamera(sprite, worldX, worldY)
   local screenX = worldX - camera.x
   local screenY = worldY - camera.y
-  
-  if screenX >= -8 and screenX <= 128 and 
+
+  if screenX >= -8 and screenX <= 128 and
      screenY >= -8 and screenY <= 128 then
     lico.writeLoadedSprite(sprite.get(), {x = screenX, y = screenY})
   end
@@ -968,7 +748,7 @@ end
 function updateCamera()
   camera.x = player.x - 64  -- Center on player
   camera.y = player.y - 64
-  
+
   -- Clamp camera
   if camera.x < 0 then camera.x = 0 end
   if camera.y < 0 then camera.y = 0 end
@@ -979,26 +759,27 @@ end
 
 ## API Summary Table
 
-| Function | Parameters | Returns | Purpose |
-|----------|-----------|---------|---------|
-| `lico.setStart()` | function | void | Set init function |
-| `lico.setUpdate()` | function | void | Set update function |
-| `lico.startGame()` | - | void | Start game loop |
-| `lico.resetCanvas()` | - | void | Clear screen |
-| `lico.fillCanvas()` | r, g, b | void | Fill screen with color |
-| `lico.load()` | index | table | Load asset (with `.get()` and `.unload()` methods) |
-| `.get()` | - | object | Retrieve loaded asset |
-| `.unload()` | - | void | Remove asset from memory |
-| `lico.writeLoadedSprite()` | sprite, pos | void | Draw sprite |
-| `lico.input()` | - | table | Get input state |
-| `lico.playLoadedSound()` | sound, id | promise | Play sound |
-| `lico.stopSound()` | id | void | Stop sound |
+| Function                   | Parameters  | Returns | Purpose                                            |
+| -------------------------- | ----------- | ------- | -------------------------------------------------- |
+| `lico.setStart()`          | function    | void    | Set init function                                  |
+| `lico.setUpdate()`         | function    | void    | Set update function                                |
+| `lico.startGame()`         | -           | void    | Start game loop                                    |
+| `lico.resetCanvas()`       | -           | void    | Clear screen                                       |
+| `lico.fillCanvas()`        | r, g, b     | void    | Fill screen with color                             |
+| `lico.load()`              | index       | table   | Load asset (with `.get()` and `.unload()` methods) |
+| `.get()`                   | -           | object  | Retrieve loaded asset                              |
+| `.unload()`                | -           | void    | Remove asset from memory                           |
+| `lico.writeLoadedSprite()` | sprite, pos | void    | Draw sprite                                        |
+| `lico.input()`             | -           | table   | Get input state                                    |
+| `lico.playLoadedSound()`   | sound, id   | promise | Play sound                                         |
+| `lico.stopSound()`         | id          | void    | Stop sound                                         |
 
 ---
 
 ## Limitations & Constraints
 
 ### Hardware Constraints
+
 - **Display**: 128x128 pixels (fixed)
 - **Sprite Size**: 8x8 pixels (fixed)
 - **Colors**: 15 per palette (fixed)
@@ -1007,90 +788,14 @@ end
 - **Memory**: 1MB at runtime
 
 ### Technical Constraints
+
 - **FPS**: 60 (fixed)
 - **Language**: Lua only
 - **Platform**: Web browsers with Web Audio API
 
 ### Game Design Constraints
+
 - Think in 8x8 pixel increments
 - Limited animation frames per sprite
 - Plan cartridge size carefully
 - Optimize for 60 FPS consistently
-
----
-
-## Troubleshooting
-
-### "Cartridge too large"
-- Reduce number of sprites
-- Use simpler sprite designs
-- Compress cartridge data
-
-### Memory bar keeps growing
-- Load sprites in `setStart`, not `update`
-- Unload sprites with `.unload()` when done
-- Check for memory leaks in loops
-
-### Sounds not playing
-- Ensure sound asset is loaded before playing
-- Check browser audio permissions
-- Verify sound ID is unique per channel
-
-### Sprites not visible
-- Check canvas coordinates (0-127)
-- Verify sprite index is loaded
-- Ensure palette is correct
-- Check for transparent pixels
-
-### Input not responding
-- Verify key is mapped correctly
-- Check `lico.input()` table structure
-- Ensure browser focus is on game window
-- Test with console output
-
----
-
-## Resources
-
-- **Cartridge Editor**: Navigate to `/creator` endpoint
-- **Game Player**: Navigate to `/` endpoint  
-- **Sprite Storage**: `smb_storage.jsonc`
-- **Game Code**: `scripts/main.lua`
-
----
-
-## Version & Changelog
-
-**LICO-16 API v1.0**
-
-Initial release with:
-- Complete canvas API
-- Full input handling
-- Audio system with 4 waveforms
-- Memory management
-- Sprite animation support
-- Lua 5.1 compatibility
-
----
-
-## License & Attribution
-
-LICO-16 uses:
-- **Lua**: Official Lua interpreter
-- **Web Audio API**: Browser standard
-- **Fantasy Console Inspiration**: PICO-8, TIC-80
-
----
-
-## Contact & Support
-
-For issues or questions:
-1. Check the troubleshooting section
-2. Review complete examples
-3. Check browser console for error messages
-4. Verify cartridge format is valid JSONC
-
----
-
-**Last Updated**: December 2025
-**Status**: Active Development
