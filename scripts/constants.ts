@@ -1,5 +1,5 @@
-export const STORAGE_SIZE = 2**27; // 128MB
-export const MEMORY_SIZE = 2**20; // 1MB
+export const STORAGE_SIZE = 1000000; // 1MB
+export const MEMORY_SIZE = 2**17; // 130KB
 
 // Colors by
 export const COLOR_PALETTES = [
