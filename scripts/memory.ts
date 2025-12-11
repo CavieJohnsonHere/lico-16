@@ -5,7 +5,6 @@ import writeSprite, { type Color, type Coordinates } from "./writeSprite";
 import * as luainjs from "lua-in-js";
 
 let memoryUsage = 0;
-let luaVariableMemoryUsage = 0;
 
 export function addCodeMemoryUsage(code: string) {
   if ((code.length % 8) % 1 != 0) memoryUsage += code.length * 1 + 8;
@@ -108,19 +107,18 @@ type LoadedObjectReference = {
 };
 
 function logMemory() {
-  const totalMemoryUsage = memoryUsage + luaVariableMemoryUsage;
-  const percentage = ((totalMemoryUsage / MEMORY_SIZE) * 100).toFixed(2);
+  const percentage = ((memoryUsage / MEMORY_SIZE) * 100).toFixed(2);
 
   console.log(
     `Memory usage: ${percentage}% ${Array(
       Math.max(10 - percentage.length, 0)
-    ).join(" ")} ${Math.ceil(totalMemoryUsage / 8)}B (Assets: ${Math.ceil(memoryUsage / 8)}B, Lua Variables: ${Math.ceil(luaVariableMemoryUsage / 8)}B)`
+    ).join(" ")} ${Math.ceil(memoryUsage / 8)}B`
   );
 
   const memoryBar = document.querySelector<HTMLDivElement>("#memory > div");
   if (memoryBar)
     memoryBar.style.width = `${Math.min(
-      (totalMemoryUsage / MEMORY_SIZE) * 100,
+      (memoryUsage / MEMORY_SIZE) * 100,
       100
     )}%`;
 }
@@ -145,51 +143,6 @@ function getLoadedObjectReference(
 
   return new luainjs.Table(thing);
 }
-
-export function calculateLuaVariableMemory(globalTable: luainjs.Table): void {
-  const visited = new Set();
-  luaVariableMemoryUsage = calculateMemoryRecursive(globalTable, visited);
-  logMemory();
-}
-
-function calculateMemoryRecursive(
-  value: any,
-  visited: Set<any>
-): number {
-  // nil: 1 byte
-  if (value === null || value === undefined) return 1;
-
-  // boolean: 1 byte
-  if (typeof value === "boolean") return 1;
-
-  // number: 2 bytes (16-bit int as specified)
-  if (typeof value === "number") return 2;
-
-  // string: 1 byte per character + 4 bytes overhead
-  if (typeof value === "string") return value.length + 4;
-
-  // Table: 4 bytes base + contents (excluding metadata)
-  if (value instanceof luainjs.Table) {
-    if (visited.has(value)) return 0; // avoid infinite recursion
-    visited.add(value);
-
-    let size = 4; // base table overhead
-    const strValues = value.strValues || {};
-
-    for (const key in strValues) {
-      const val = strValues[key];
-      size += 4; // key overhead
-      size += calculateMemoryRecursive(val, visited);
-    }
-
-    return size;
-  }
-
-  // Function: 8 bytes overhead (approximate)
-  if (typeof value === "function") return 8;
-
-  // Default fallback
-  return 1;
 
 export function load(index: number): luainjs.Table {
   const loadedObject = storage[index];

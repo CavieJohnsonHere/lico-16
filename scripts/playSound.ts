@@ -120,8 +120,6 @@ export default function playSound(sound: Sound) {
 const sounds: NodeJS.Timeout[][] = [];
 
 export async function playLoadedSound(loadedSound: LoadedSound, id: number) {
-  console.log(loadedSound)
-
   // Play each sound one after the other (sequentially).
   for (const sound of loadedSound.content) {
     // Reset sounds from the id
@@ -139,7 +137,6 @@ export async function playLoadedSound(loadedSound: LoadedSound, id: number) {
 }
 
 export function stopSound(id: number) {
-  console.log("Stopping sound", id);
   const soundsToRemove = sounds[id];
   if (soundsToRemove) {
     soundsToRemove.forEach((soundToRemove) => clearTimeout(soundToRemove));
