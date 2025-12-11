@@ -51,10 +51,38 @@ export default async function bootstrapGame({
 
   if (!jsonFiles[0] && ensureSelectedFile) {
     document.body.innerHTML += `<div id="no-cartridge-warning">
-      <h1>No cartridge loaded</h1>
+      <h1>No cartridge loaded!
+        <div class="cart-logo">
+          <span></span>
+          <div></div>
+          <div></div>
+          <span></span>
+
+          <div style="background-color: #fffa"></div>
+          <div style="background-color: #fffa"></div>
+          <div style="background-color: #fffa"></div>
+          <div style="background-color: #fffa"></div>
+
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+
+          <div></div>
+          <div></div>
+          <div></div>
+          <span></span>
+        </div>
+      </h1>
       <div id="nogame-container">
-        <button id="nogame"></button><div>Continue without loading a cartridge</div>
-        <button id="loadcart"></button><div>Load cartridge</div>
+        <div class="pop-button" id="nogame">
+          <div class="pop-base"></div>
+          <div class="pop-top" id="file-btn">Continue without a cartridge</div>
+        </div>
+        <div class="pop-button" id="loadcart">
+          <div class="pop-base"></div>
+          <div class="pop-top" id="file-btn">Load a cartridge</div>
+        </div>
       </div>
     </div>
     

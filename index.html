@@ -3,6 +3,12 @@
   <head>
     <title>lico 16 player</title>
     <script src="./scripts/main.ts"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
         --def-hue: 0;
@@ -18,7 +24,7 @@
         height: 100vh;
         padding: 0;
         margin: 0;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Pixelify Sans", monospace;
       }
 
       canvas {
@@ -63,8 +69,10 @@
       }
 
       h1 {
+        display: flex;
+        gap: 10px;
         color: white;
-        font-size: medium;
+        font-size: 24px;
         text-align: center;
         padding: 40px;
         font-weight: normal;
@@ -72,6 +80,45 @@
 
       h1 > span {
         font-weight: bold;
+      }
+
+      .cart-logo {
+        height: 24px;
+        width: 24px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        animation: cart-logo-ping 3s step-end infinite;
+      }
+
+      @keyframes cart-logo-ping {
+        from {
+          transform: translateY(5px);
+        }
+
+        15% {
+          transform: translateY(0);
+        }
+
+        30% {
+          transform: translateY(-5px);
+        }
+
+        45% {
+          transform: translateY(0);
+        }
+
+        60% {
+          opacity: 0.5;
+        }
+      }
+
+      .cart-logo * {
+        height: 6px;
+        width: 6px;
+      }
+
+      .cart-logo div {
+        background-color: white;
       }
 
       #no-cartridge-warning-bg {
