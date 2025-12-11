@@ -4,7 +4,11 @@ import type { Sound } from "./playSound";
 import writeSprite, { type Color, type Coordinates } from "./writeSprite";
 import * as luainjs from "lua-in-js";
 
-let memoryUsage = 0;
+export let memoryUsage = 0;
+
+export function addMemoryUsage(a: number) {
+  memoryUsage += a;
+}
 
 export function addCodeMemoryUsage(code: string) {
   if ((code.length % 8) % 1 != 0) memoryUsage += code.length * 1 + 8;
