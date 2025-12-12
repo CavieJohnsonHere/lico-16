@@ -6,10 +6,6 @@ import * as luainjs from "lua-in-js";
 
 export let memoryUsage = 0;
 
-export function addMemoryUsage(a: number) {
-  memoryUsage += a;
-}
-
 export function addCodeMemoryUsage(code: string) {
   if ((code.length % 8) % 1 != 0) memoryUsage += code.length * 1 + 8;
   else memoryUsage += code.length * 1 + 4;
@@ -43,11 +39,11 @@ export type Transform = Partial<{
 }>;
 
 export function writeLoadedSprite(
-  loadedObject: LoadedObject,
+  loadedObject: { strValues: LoadedObject },
   pos: { strValues: Coordinates },
   transformValues: { strValues: Transform } | {} = {}
 ) {
-  if (loadedObject.type != "image") throw new Error(`Invalid type`);
+  if (loadedObject.strValues.type != "image") throw new Error(`Invalid type`);
   let pixels: number[] = [];
 
   const transform =
@@ -56,14 +52,18 @@ export function writeLoadedSprite(
   if (transform.rotate === 90) {
     for (let x = 0; x < 8; x++) {
       for (let y = 7; y >= 0; y--) {
-        const newPixel = loadedObject.content.pixels[y * 8 + x];
+        const newPixel = loadedObject.strValues.content.pixels[y * 8 + x];
         if (newPixel === undefined) throw new Error("Invalid pixel data");
         pixels.push(newPixel);
       }
     }
   } else if (transform.rotate === 180) {
-    for (let i = loadedObject.content.pixels.length - 1; i >= 0; i--) {
-      pixels.push(loadedObject.content.pixels[i] || 0);
+    for (
+      let i = loadedObject.strValues.content.pixels.length - 1;
+      i >= 0;
+      i--
+    ) {
+      pixels.push(loadedObject.strValues.content.pixels[i] || 0);
     }
   } else if (transform.rotate === 45) {
     for (let i = 0; i < 64; i++) {
@@ -72,12 +72,12 @@ export function writeLoadedSprite(
       const skewX = (x + y) % 8;
       const skewY = (y - x + 8) % 8;
       const sourceIdx = skewY * 8 + skewX;
-      pixels.push(loadedObject.content.pixels[sourceIdx] || 0);
+      pixels.push(loadedObject.strValues.content.pixels[sourceIdx] || 0);
     }
   } else if (transform.rotate != undefined) {
     throw new Error("Invalid rotation value");
   } else {
-    pixels = loadedObject.content.pixels;
+    pixels = loadedObject.strValues.content.pixels;
   }
 
   if (transform.flipX) {
@@ -97,7 +97,7 @@ export function writeLoadedSprite(
   }
 
   writeSprite(
-    transform.usePallette || loadedObject.content.palette,
+    transform.usePallette || loadedObject.strValues.content.palette,
     pixels,
     pos.strValues
   );
@@ -135,7 +135,9 @@ function getLoadedObjectReference(
   references[index] = loadedObject;
   const thing = {} as LoadedObjectReference;
 
-  thing.get = () => references[index];
+  thing.get = () => {
+    return new luainjs.Table(references[index]);
+  };
 
   thing.unload = () => {
     references[index] = undefined;
