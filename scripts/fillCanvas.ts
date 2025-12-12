@@ -1,5 +1,5 @@
 import ctx from "./canvas";
-import { HEIGHT, WIDTH } from "./setupCanvas";
+import { HEIGHT, SCALE, WIDTH } from "./setupCanvas";
 
 export default function fillCanvas(r: number, g: number, b: number) {
   const context = ctx();
@@ -10,5 +10,5 @@ export default function fillCanvas(r: number, g: number, b: number) {
 
   context.content.fillStyle = `rgb(${r}, ${g}, ${b})`;
 
-  context.content.fillRect(0, 0, WIDTH, HEIGHT);
+  context.content.fillRect(0, 0, WIDTH * SCALE, HEIGHT * SCALE);
 }
