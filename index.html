@@ -61,11 +61,50 @@
 
       #overlay > div {
         width: 30px;
-        height: 30px;
+        height: 42px;
+        scale: 1.2;
 
-        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        animation: play-button-rotate 2500ms step-end infinite;
+      }
+
+      #overlay > div:hover > div {
+        box-shadow: 0 0 10px #fff3, 0 0 20px #fff3, 0 0 30px #fff3,
+          0 0 40px #fff3;
+      }
+
+      @keyframes play-button-rotate {
+        from {
+          transform: translateY(0);
+        }
+        20% {
+          transform: translateY(2px);
+        }
+        40% {
+          transform: translateY(4px);
+        }
+        60% {
+          transform: translateY(2px);
+        }
+        80% {
+          transform: translateY(0);
+        }
+      }
+
+      #overlay > div > div {
+        width: 100%;
+        height: 100%;
+
         background-color: white;
-        transform: rotate(90deg);
+        transition: box-shadow 250ms;
+      }
+
+      #overlay > div > span {
+        width: 100%;
+        height: 100%;
+
+        background-color: transparent;
       }
 
       h1 {
@@ -168,9 +207,9 @@
       }
 
       /* #nogame,
-      #loadcart {
-        width: 50%;
-      } */
+        #loadcart {
+          width: 50%;
+        } */
 
       #nogame-container {
         display: grid;
@@ -308,7 +347,61 @@
       <div></div>
     </div>
     <div id="overlay">
-      <div></div>
+      <div>
+        <div></div>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+
+        <div></div>
+        <div></div>
+        <span></span>
+        <span></span>
+        <span></span>
+
+        <div></div>
+        <div></div>
+        <div></div>
+        <span></span>
+        <span></span>
+
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <span></span>
+
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <span></span>
+
+        <div></div>
+        <div></div>
+        <div></div>
+        <span></span>
+        <span></span>
+
+        <div></div>
+        <div></div>
+        <span></span>
+        <span></span>
+        <span></span>
+
+        <div></div>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </div>
     <div id="outline">
       <div id="inline"></div>
